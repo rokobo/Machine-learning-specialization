@@ -119,4 +119,4 @@ def plot_boundary_line(
                 z[i, j] = sigmoid(np.dot(feature_map(u_val, v_val), w) + b)
 
         z = z.T
-        plt.contour(u, v, z, levels=[0.5], linestyles='--', colors=color)
+        plt.contour(u, v, z, levels=[0.5], linestyle='--', colors=color)

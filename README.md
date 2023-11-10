@@ -4,3 +4,4 @@ Collection of Jupyter notebooks with machine learning algorithms I learned in th
 
 1. Linear regression using gradient descent (1 problem).
 2. Logistic regression using gradient descent, regularization and feature mapping (2 problems).
+3. Simple neural network for binary classification of images (2 problems).

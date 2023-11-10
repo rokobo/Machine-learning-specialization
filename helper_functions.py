@@ -119,4 +119,54 @@ def plot_boundary_line(
                 z[i, j] = sigmoid(np.dot(feature_map(u_val, v_val), w) + b)
 
         z = z.T
-        plt.contour(u, v, z, levels=[0.5], linestyle='--', colors=color)
+        plt.contour(u, v, z, levels=[0.5], linestyles='--', colors=color)
+
+
+def plot_drawings(
+    x: ndarray, y: ndarray, size: int = 8, model=None, model2=None
+):
+    """
+    Plots drawings.
+
+    Args:
+        x (ndarray): x values.
+        y (ndarray): y values.
+        size (int): How many pictures to show.
+        model (optional): Prediction model. Defaults to None.
+        model2 (optional): Prediction model2. Defaults to None.
+    """
+    m, _ = x.shape
+
+    fig, axes = plt.subplots(size, size, figsize=(size, size))
+    fig.tight_layout(pad=0.1, rect=[0, 0.03, 1, 0.92])
+
+    for _, ax in enumerate(axes.flat):
+        # Select random indices
+        random_index = np.random.randint(m)
+
+        # Select rows corresponding to the random indices and
+        # reshape the image
+        x_random_reshaped = x[random_index].reshape((20, 20)).T
+
+        # Display the image
+        ax.imshow(x_random_reshaped, cmap='gray')
+
+        # Display the label above the image
+        label = str(y[random_index, 0])
+        if model is not None:
+            prediction = model.predict(
+                x[random_index].reshape(1, 400),
+                verbose=None
+            )
+            yhat = (1 if prediction >= 0.5 else 0)
+            label += f", {yhat}"
+        if model2 is not None:
+            prediction = model2.predict(x[random_index])
+            yhat = (1 if prediction >= 0.5 else 0)
+            label += f", {yhat}"
+        ax.set_title(label)
+        ax.set_axis_off()
+    title = "Label"
+    title += ", prediction 1" if model is not None else ""
+    title += ", prediction 2" if model2 is not None else ""
+    fig.suptitle(title, fontsize=16)

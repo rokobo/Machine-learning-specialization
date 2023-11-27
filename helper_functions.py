@@ -2,6 +2,7 @@
 import numpy as np
 from numpy import ndarray
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 
 def plot_data(
@@ -123,7 +124,8 @@ def plot_boundary_line(
 
 
 def plot_drawings(
-    x: ndarray, y: ndarray, size: int = 8, model=None, model2=None
+    x: ndarray, y: ndarray, size: int = 8,
+    model=None, model2=None, model3=None
 ):
     """
     Plots drawings.
@@ -134,6 +136,7 @@ def plot_drawings(
         size (int): How many pictures to show.
         model (optional): Prediction model. Defaults to None.
         model2 (optional): Prediction model2. Defaults to None.
+        model3 (optional): Prediction model3. Defaults to None.
     """
     m, _ = x.shape
 
@@ -155,8 +158,7 @@ def plot_drawings(
         label = str(y[random_index, 0])
         if model is not None:
             prediction = model.predict(
-                x[random_index].reshape(1, 400),
-                verbose=None
+                x[random_index].reshape(1, 400), verbose=None
             )
             yhat = (1 if prediction >= 0.5 else 0)
             label += f", {yhat}"
@@ -164,9 +166,41 @@ def plot_drawings(
             prediction = model2.predict(x[random_index])
             yhat = (1 if prediction >= 0.5 else 0)
             label += f", {yhat}"
+        if model3 is not None:
+            prediction = model3.predict(
+                x[random_index].reshape(1, 400), verbose=None
+            )
+            prediction_p = tf.nn.softmax(prediction)
+            yhat = np.argmax(prediction_p)
+            label += f", {yhat}"
         ax.set_title(label)
         ax.set_axis_off()
+
+    # Add title
     title = "Label"
-    title += ", prediction 1" if model is not None else ""
-    title += ", prediction 2" if model2 is not None else ""
+    num = 0
+    title += ", prediction " + str(num := num+1) if model is not None else ""
+    title += ", prediction " + str(num := num+1) if model2 is not None else ""
+    title += ", prediction " + str(num := num+1) if model3 is not None else ""
     fig.suptitle(title, fontsize=16)
+
+
+def get_error_rate(model, x: ndarray, y: ndarray) -> None:
+    """
+    Prints error rate for softmax model.
+
+    Args:
+        model: Softmax model
+        x (ndarray): x values.
+        y (ndarray): y values.
+
+    Returns:
+        int: _description_
+    """
+    predictions = model.predict(x)
+    yhat = np.argmax(predictions, axis=1)
+    errors = sum(yhat != y[:, 0])
+    print(
+        errors, "errors out of", len(y), "examples:",
+        f"{100*errors/len(y)}% error rate"
+    )

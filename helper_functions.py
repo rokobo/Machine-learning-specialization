@@ -3,6 +3,7 @@ import numpy as np
 from numpy import ndarray
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from sklearn.datasets import make_blobs
 
 
 def plot_data(
@@ -47,7 +48,6 @@ def plot_data(
     x_margin, y_margin = max_x * margin_scale, max_y * margin_scale
     plt.xlim(min_x - x_margin, max_x + x_margin)
     plt.ylim(min_y - y_margin, max_y + y_margin)
-    # plt.show()
 
 
 def plot_prediction_line(x: ndarray, y: ndarray, color: str = "b"):
@@ -204,3 +204,118 @@ def get_error_rate(model, x: ndarray, y: ndarray) -> None:
         errors, "errors out of", len(y), "examples:",
         f"{100*errors/len(y)}% error rate"
     )
+
+
+def generate_quadratic_data(
+    size: int, seed: int = 1, scale: float = 0.7
+) -> tuple[list[float]]:
+    """
+    Generates dataset based on the equation x^2 with some added noise.
+
+    Args:
+        size (int): Size of dataset.
+        seed (int, optional): Random seed. Defaults to 1.
+        scale (float, optional): Scale of the noise. Defaults to 0.7.
+
+    Returns:
+        tuple[list[float]]:
+            Training values of x with some noise,
+            training values of y with some noise,
+            ideal values of y for the training values.
+    """
+    x_train = np.linspace(0, 49, size)
+    np.random.seed(seed)
+    y_ideal = x_train**2
+    y_train = y_ideal + scale * y_ideal * (np.random.sample((size,)) - 0.5)
+    return x_train, y_train, y_ideal
+
+
+def plot_quadratic_noise_data(
+    ideal: tuple[ndarray],
+    train: tuple[ndarray],
+    test: tuple[ndarray],
+    cv: tuple[ndarray] = None,
+    predict: tuple[ndarray] = None
+) -> None:
+    """
+    Generates plot for the quadratic data with noise.
+
+    Args:
+        x (ndarray): X values.
+        y_ideal (ndarray): Ideal y values.
+        x_train (ndarray): X training values.
+        y_train (ndarray): Y training values.
+        x_test (ndarray): X test values.
+        y_test (ndarray): Y test values.
+    """
+    _, ax = plt.subplots(1, 1, figsize=(6, 4))
+    ax.plot(ideal[0], ideal[1], "--", color="orangered", label="y_ideal", lw=1)
+    title = "Training, Test"
+
+    ax.scatter(train[0], train[1], color="red", label="train")
+    ax.scatter(test[0], test[1], color="blue", label="test")
+
+    if cv is not None:
+        title += ", CV"
+        ax.scatter(cv[0], cv[1], color="orange", label="cv")
+
+    if predict is not None:
+        ax.plot(predict[0], predict[1], color="green", label="predicted", lw=1)
+
+    ax.set_title(title, fontsize=14)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.legend(loc='upper left')
+
+
+def plot_optimal_val(
+    ideal: tuple[ndarray], train: tuple[ndarray], cv: tuple[ndarray],
+    pred: tuple[ndarray], errors: tuple[ndarray], max_degree: int,
+    optimal_val: int, lambdas: ndarray = None
+):
+    """
+    Plots prediction line.
+
+    Args:
+        x (ndarray): X values.
+        y (ndarray): Y values.
+        color (str, optional): Color of the line. Defaults to "b".
+    """
+    comp = "Degree" if lambdas is None else "Lambda"
+    _, ax = plt.subplots(2, 3, figsize=(12, 8))
+
+    for i, degrees in enumerate(np.array_split(range(max_degree), 5)):
+        row, col = i//3, i % 3
+        ax[row, col].set_title("Predictions vs Data", fontsize=12)
+        ax[row, col].set_xlabel("x")
+        ax[row, col].set_ylabel("y")
+
+        ax[row, col].plot(
+            ideal[0], ideal[1], "--", color="purple", label="y_ideal", lw=1)
+        ax[row, col].scatter(
+            train[0], train[1], color="red", label="train", s=10)
+        ax[row, col].scatter(
+            cv[0], cv[1], color="green", label="cv", s=10)
+        for i in degrees:
+            ax[row, col].plot(
+                pred[0], pred[1][:, i],  lw=2,
+                label=f"{i+1}" if lambdas is None else f"{lambdas[i]}"
+            )
+        ax[row, col].legend(loc='upper left')
+
+    x_vals = range(1, max_degree+1) if lambdas is None else lambdas
+    ax[1, 2].plot(x_vals, errors[0], marker='o', label="Train error")
+    ax[1, 2].plot(x_vals, errors[1], marker='o', label="CV error")
+    if lambdas is not None:
+        ax[1, 2].set_xscale('log')
+        optimal_val = lambdas[optimal_val]
+    ax[1, 2].axvline(optimal_val, color="purple")
+    ax[1, 2].annotate(
+        f"Optimal {comp}", xy=(optimal_val, 80000), xycoords='data',
+        xytext=(0.25, 0.7), textcoords='axes fraction', fontsize=10,
+        arrowprops=dict(arrowstyle="->", connectionstyle="arc3"))
+    ax[1, 2].set_title(f"Error vs {comp}")
+    ax[1, 2].legend(loc="upper center")
+    ax[1, 2].set_xlabel(comp)
+    ax[1, 2].set_ylabel("error")
+    plt.tight_layout()

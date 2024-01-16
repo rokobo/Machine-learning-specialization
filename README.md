@@ -14,3 +14,7 @@ Collection of Jupyter notebooks with machine learning algorithms I learned in th
     <p align="center">
     <img src="https://github.com/rokobo/Machine-learning-specialization/blob/main/images/image_03.png?raw=true" width="250"/>
     </p>
+4. Simple model analysis and benchmarks (2 problems).
+    <p align="center">
+    <img src="https://github.com/rokobo/Machine-learning-specialization/blob/main/images/image_04.png?raw=true" width="250"/>
+    </p>

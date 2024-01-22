@@ -3,7 +3,6 @@ import numpy as np
 from numpy import ndarray
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from sklearn.datasets import make_blobs
 
 
 def plot_data(

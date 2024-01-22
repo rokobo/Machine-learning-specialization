@@ -1,2 +1,5 @@
 __pycache__
 *.code-workspace
+.ipynb_checkpoints
+.vscode/settings.json
+default.nix

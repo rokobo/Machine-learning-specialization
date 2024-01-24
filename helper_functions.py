@@ -2,6 +2,7 @@
 import numpy as np
 from numpy import ndarray
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 import tensorflow as tf
 
 
@@ -318,3 +319,38 @@ def plot_optimal_val(
     ax[1, 2].set_xlabel(comp)
     ax[1, 2].set_ylabel("error")
     plt.tight_layout()
+
+
+def plot_compressed_image(
+    original: ndarray, compressed: ndarray, centroids: ndarray
+) -> None:
+    """
+    Plots a graph with original image and compressed image, side-by-side.
+        Along with the color palette used for compression.
+
+    Args:
+        original (ndarray): Original image.
+        compressed (ndarray): Compressed image.
+        centroids (ndarray): Centroids.
+    """
+    fig = plt.figure(figsize=(16, 16))
+    gs = GridSpec(2, 2, figure=fig)
+
+    fig.add_subplot(gs[0, :])
+    palette = np.expand_dims(centroids, axis=0)
+    plt.title('Centroid colors')
+    plt.xticks(np.arange(0, len(centroids)))
+    plt.yticks([])
+    plt.imshow(palette)
+
+    fig.add_subplot(gs[1, 0])
+    plt.imshow(original)
+    plt.title('Original image')
+    plt.axis('off')
+
+    fig.add_subplot(gs[1, 1])
+    plt.imshow(compressed)
+    plt.title(f'Compressed image with {len(centroids)} colours')
+    plt.axis('off')
+
+    plt.subplots_adjust(wspace=0, hspace=-0.5)

@@ -354,3 +354,42 @@ def plot_compressed_image(
     plt.axis('off')
 
     plt.subplots_adjust(wspace=0, hspace=-0.5)
+
+
+def plot_anomaly_data(
+    x: ndarray, title: str, pdf=None, mu: ndarray = None,
+    var: ndarray = None, anomalies: ndarray = None
+):
+    """
+    Plots anomaly data via scatter plot.
+
+    Args:
+        x (ndarray): X values.
+        title (str): Title.
+        pdf (Callable, optional): Probability density function.
+            Defaults to None.
+        mu (ndarray, optional): Mean of all x features. Defaults to None.
+        var (ndarray, optional): Variance of all x features. Defaults to None.
+        anomalies (ndarray, optional): Outliers index. Defaults to None.
+    """
+    plt.scatter(x[:, 0], x[:, 1], marker='x', c='b', s=20)
+    plt.title(title)
+    plt.ylabel('Throughput (mb/s)')
+    plt.xlabel('Latency (ms)')
+    plt.axis([0, 30, 0, 30])
+
+    if pdf is not None:
+        x1, x2 = np.meshgrid(np.arange(0, 35.5, 0.5), np.arange(0, 35.5, 0.5))
+        z = pdf(np.stack([x1.ravel(), x2.ravel()], axis=1), mu, var)
+        z = z.reshape(x1.shape)
+
+        if np.sum(np.isinf(z)) == 0:
+            plt.contour(
+                x1, x2, z, levels=10**(np.arange(-20., 1, 3)), linewidths=1
+            )
+
+    if anomalies is not None:
+        plt.plot(
+            x[anomalies, 0], x[anomalies, 1], 'ro',
+            markersize=10, markerfacecolor='none', markeredgewidth=2
+        )

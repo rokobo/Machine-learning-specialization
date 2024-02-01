@@ -26,3 +26,7 @@ Collection of Jupyter notebooks with machine learning algorithms I learned in th
     <p align="left">
     <img src="images/image_06.png?raw=true" width="300"/>
     </p>
+7. Anomaly detection in servers (1 problem).
+    <p align="left">
+    <img src="images/image_07.png?raw=true" width="300"/>
+    </p>
